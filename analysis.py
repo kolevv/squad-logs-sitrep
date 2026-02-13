@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def load_data(path: str) -> pd.DataFrame:
-    df = pd.read_json(path)
+    df = pd.read_json(path, dtype={"steamID": str, "eosID": str})
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["target_type"] = df["deployable"].apply(classify_target)
     return df
@@ -26,18 +26,15 @@ def build_player_table(df: pd.DataFrame) -> pd.DataFrame:
     One row per steamID.
     Uses the most recently seen player name as the display name.
     """
-    idx = df.groupby("steamID")["timestamp"].idxmax()
-
+    # Sort by timestamp descending, then drop duplicates keeping first (most recent)
+    sorted_df = df.sort_values("timestamp", ascending=False)
     players = (
-        df.loc[idx, ["steamID", "playerName"]]
+        sorted_df.drop_duplicates(subset="steamID", keep="first")[
+            ["steamID", "playerName"]]
         .rename(columns={"playerName": "display_name"})
         .reset_index(drop=True)
     )
-
-    return players[[
-        "display_name",
-        "steamID",
-    ]]
+    return players
 
 
 def damage_by_player(df: pd.DataFrame) -> pd.DataFrame:
