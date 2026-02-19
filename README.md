@@ -14,15 +14,7 @@ The UI is built with **Streamlit** and intended to be simple, readable, and easy
 
 ## Data
 
-The `data/` directory is **gitignored**.
-
-You are expected to provide your own SquadJS-exported JSON file:
-
-```
-data/output.json
-```
-
-This keeps the repository clean and avoids committing entire game logs.
+Users are expected to provide their own SquadJS-exported JSON file
 
 The expected format of the log is an array of objects with the following shape:
 

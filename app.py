@@ -1,17 +1,48 @@
 import streamlit as st
 import plotly.express as px
+import pandas as pd
+
 from analysis import (
     load_data,
     build_player_table,
     filter_targets,
     damage_by_player,
     damage_by_player_and_target,
+    classify_target,
 )
 
-st.set_page_config(page_title="HAB & Radio Damage Analytics", layout="wide")
+st.set_page_config(page_title="HAB & Radio Damage Analytics",
+                   layout="wide")
 st.title("HAB & Radio Damage Analytics")
 
-df = load_data("data/output.json")
+st.sidebar.markdown("Upload a SquadJS JSON log file to continue.")
+uploaded_file = st.file_uploader(
+    '''Upload JSON file with the following format:
+
+```json
+ {
+    "messageId": "1234567890123456789",
+    "timestamp": "2025-02-13T20:08:07.267Z",
+    "playerName": "Bishop",
+    "steamID": "01234567890123456",
+    "eosID": "0001a2b345c678d90e1fg23456789012",
+    "deployable": "US_Hab_Forest",
+    "weapon": "BP_PLA_Deployable_TNT_Explosive_Timed"
+  },
+```''',
+    type=["json"],
+)
+if uploaded_file is None:
+    st.stop()
+try:
+    df = pd.read_json(uploaded_file, dtype={"steamID": str, "eosID": str})
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df["target_type"] = df["deployable"].apply(classify_target)
+    st.success("Uploaded data loaded successfully.")
+except Exception as e:
+    st.error(f"Failed to parse uploaded file: {e}")
+    st.stop()
+
 players = build_player_table(df)
 
 # Sidebar
