@@ -2,6 +2,8 @@
 
 This project processes event data produced by **SquadJS** and visualizes which players deal the most damage to **HABs** and **FOB radios** in _Squad_.
 
+Access a hosted version of this app here: https://squadlogs.streamlit.app/
+
 The analysis:
 
 - Treats **SteamID as the unique player identity**
